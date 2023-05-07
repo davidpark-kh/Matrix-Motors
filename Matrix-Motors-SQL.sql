@@ -1,148 +1,124 @@
-CREATE TABLE "Financing"(
-    "finance_id" SERIAL NOT NULL,
-    "finance_type" VARCHAR(50) NOT NULL,
-    "months" INTEGER NOT NULL,
-    "down_pay" DECIMAL(7, 2) NOT NULL,
-    "int_rate" DECIMAL(3, 2) NOT NULL,
-    "promos" DECIMAL(6, 2) NOT NULL,
-    "monthly_pay" BIGINT NOT NULL
+-- This Executing this script when first creating the database will load all the tables and columns. Foreign keys have been referenced to respective primary keys.
+
+CREATE TABLE Parts_Inventory(
+    part_id SERIAL PRIMARY KEY,
+    type VARCHAR(30),
+    msrp DECIMAL(6, 2),
+    stock INTEGER,
+    ppu VARCHAR(20)
 );
-ALTER TABLE
-    "Financing" ADD PRIMARY KEY("finance_id");
-CREATE TABLE "Service Contract"(
-    "servecon_id" SERIAL NOT NULL,
-    "customer_id" INTEGER NOT NULL,
-    "vehicle_id" INTEGER NOT NULL,
-    "service_performed_id" INTEGER NOT NULL
+
+CREATE TABLE Vehicle_Options(
+    option_id SERIAL PRIMARY KEY,
+    description VARCHAR(50),
+    price DECIMAL(8, 2)
 );
-ALTER TABLE
-    "Service Contract" ADD PRIMARY KEY("servecon_id");
-CREATE TABLE "Vehicle_Inventory"(
-    "vehicle_inventory_id" SERIAL NOT NULL,
-    "vehicle_id" INTEGER NOT NULL,
-    "acquired" DATE NOT NULL,
-    "options_id" INTEGER NOT NULL,
-    "msrp" DECIMAL(9, 2) NOT NULL
+
+CREATE TABLE Financing(
+    finance_id SERIAL PRIMARY KEY,
+    finance_type VARCHAR(50),
+    months INTEGER,
+    down_pay DECIMAL(7, 2),
+    int_rate DECIMAL(3, 2),
+    promos DECIMAL(6, 2),
+    monthly_pay BIGINT
 );
-ALTER TABLE
-    "Vehicle_Inventory" ADD PRIMARY KEY("vehicle_inventory_id");
-CREATE TABLE "Address"(
-    "address_id" SERIAL NOT NULL,
-    "staff_id" INTEGER NOT NULL,
-    "street_address" VARCHAR(50) NOT NULL,
-    "street_address2" VARCHAR(50) NOT NULL,
-    "city" VARCHAR(50) NOT NULL,
-    "state" VARCHAR(10) NOT NULL,
-    "postal_code" INTEGER NOT NULL
+
+CREATE TABLE Address(
+    address_id SERIAL PRIMARY KEY,
+    street_address VARCHAR(50),
+    street_address2 VARCHAR(50),
+    city VARCHAR(50),
+    state VARCHAR(10),
+    postal_code INTEGER
 );
-ALTER TABLE
-    "Address" ADD PRIMARY KEY("address_id");
-CREATE TABLE "Staff"(
-    "staff_id" SERIAL NOT NULL,
-    "first_name" VARCHAR(50) NOT NULL,
-    "last_name" VARCHAR(50) NOT NULL,
-    "hire_date" DATE NOT NULL,
-    "department" VARCHAR(20) NOT NULL,
-    "phone" INTEGER NOT NULL,
-    "address_id" BIGINT NOT NULL
+
+CREATE TABLE Staff(
+    staff_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    hire_date DATE,
+    department VARCHAR(20),
+    phone INTEGER,
+    address_id BIGINT,
+    Foreign key (address_id) references Address(address_id)
 );
-ALTER TABLE
-    "Staff" ADD PRIMARY KEY("staff_id");
-CREATE TABLE "Sales Contract"(
-    "salecon_id" SERIAL NOT NULL,
-    "customer_id" INTEGER NOT NULL,
-    "staff_id" INTEGER NOT NULL,
-    "vehicle_id" INTEGER NOT NULL,
-    "sale_date" DATE NOT NULL,
-    "trade_vehicle_id" INTEGER NOT NULL,
-    "final_price" DECIMAL(9, 2) NOT NULL,
-    "finance_id" INTEGER NOT NULL
+
+CREATE TABLE Vehicle(
+    vehicle_id SERIAL PRIMARY KEY,
+    make VARCHAR(20),
+    model VARCHAR(20),
+    year INTEGER,
+    last_mileage INTEGER,
+    last_service DATE,
+    color VARCHAR(20),
+    option_id INTEGER,
+    Foreign key (option_id) references Vehicle_Options(option_id)
 );
-ALTER TABLE
-    "Sales Contract" ADD PRIMARY KEY("salecon_id");
-CREATE TABLE "Service_Performed"(
-    "service_performed_id" SERIAL NOT NULL,
-    "service_id" INTEGER NOT NULL,
-    "staff_id" INTEGER NOT NULL,
-    "servecon_id" INTEGER NOT NULL
+
+CREATE TABLE Vehicle_Inventory(
+    vehicle_inventory_id SERIAL PRIMARY KEY,
+    vehicle_id INTEGER,
+    acquired DATE,
+    options_id INTEGER,
+    msrp DECIMAL(9, 2),
+    FOREIGN key (vehicle_id) references Vehicle(vehicle_id)
 );
-ALTER TABLE
-    "Service_Performed" ADD PRIMARY KEY("service_performed_id");
-CREATE TABLE "Customer"(
-    "customer_id" SERIAL NOT NULL,
-    "first_name" VARCHAR(50) NOT NULL,
-    "last_name" VARCHAR(50) NOT NULL,
-    "company" VARCHAR(50) NOT NULL,
-    "phone" INTEGER NOT NULL,
-    "email" VARCHAR(50) NOT NULL,
-    "first contacted" DATE NOT NULL,
-    "address_id" INTEGER NOT NULL,
-    "vehicle_id" INTEGER NULL
+
+CREATE TABLE Services(
+    service_id SERIAL,
+    service_type VARCHAR(30),
+    price BIGINT,
+    part_id INTEGER,
+    FOREIGN KEY (part_id) references Parts_Inventory(part_id)
 );
-ALTER TABLE
-    "Customer" ADD PRIMARY KEY("customer_id");
-CREATE TABLE "Vehicle_Options"(
-    "option_id" SERIAL NOT NULL,
-    "description" VARCHAR(50) NOT NULL,
-    "price" DECIMAL(8, 2) NOT NULL
+-- Included an alter table clause to show variariaton in our code
+ALTER TABLE Services
+ADD PRIMARY KEY(service_id);
+
+CREATE TABLE Customer(
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    company VARCHAR(50),
+    phone INTEGER,
+    email VARCHAR(50),
+    first_contacted DATE,
+    address_id INTEGER,
+    vehicle_id INTEGER,
+    FOREIGN key (address_id) references Address(address_id),
+    FOREIGN key (vehicle_id) references Vehicle(vehicle_id)
 );
-ALTER TABLE
-    "Vehicle_Options" ADD PRIMARY KEY("option_id");
-CREATE TABLE "Vehicle"(
-    "vehicle_id" SERIAL NOT NULL,
-    "make" VARCHAR(20) NOT NULL,
-    "model" VARCHAR(20) NOT NULL,
-    "year" INTEGER NOT NULL,
-    "last_mileage" INTEGER NOT NULL,
-    "last_service" DATE NOT NULL,
-    "color" VARCHAR(20) NOT NULL,
-    "customer_id" INTEGER NULL,
-    "vehicle_inventory_id" INTEGER NOT NULL
+
+CREATE TABLE Service_Performed(
+    service_performed_id SERIAL PRIMARY KEY,
+    service_id INTEGER,
+    staff_id INTEGER,
+    FOREIGN key (service_id) references Services(service_id),
+    FOREIGN key (staff_id) references Staff(staff_id)
 );
-ALTER TABLE
-    "Vehicle" ADD PRIMARY KEY("vehicle_id");
-CREATE TABLE "Services"(
-    "service_id" SERIAL NOT NULL,
-    "service_type" VARCHAR(30) NOT NULL,
-    "price" BIGINT NOT NULL,
-    "part_id" INTEGER NULL
+
+CREATE TABLE Service_Contract(
+    servecon_id SERIAL PRIMARY KEY,
+    customer_id INTEGER,
+    vehicle_id INTEGER,
+    service_performed_id INTEGER,
+    FOREIGN KEY (customer_id) references Customer(customer_id),
+    FOREIGN key (vehicle_id) references Vehicle(vehicle_id),
+    FOREIGN KEY (service_performed_id) references Service_Performed(service_performed_id)
 );
-ALTER TABLE
-    "Services" ADD PRIMARY KEY("service_id");
-CREATE TABLE "Parts_Inventory"(
-    "part_id" SERIAL NOT NULL,
-    "type" VARCHAR(30) NOT NULL,
-    "msrp" DECIMAL(6, 2) NOT NULL,
-    "stock" INTEGER NOT NULL,
-    "ppu" VARCHAR(20) NOT NULL
+
+-- Maybe we can create a function that calculates the total price and returns a receipt of some sort like "Total financed sis x Your total monthly payment is y"
+CREATE TABLE Sales_Contract(
+    salecon_id SERIAL PRIMARY KEY,
+    customer_id INTEGER,
+    staff_id INTEGER,
+    vehicle_id INTEGER,
+    sale_date DATE,
+    final_price DECIMAL(9, 2),
+    finance_id INTEGER,
+    FOREIGN KEY (customer_id) references customer(customer_id),
+    FOREIGN key (staff_id)references Staff(staff_id),
+    FOREIGN key (vehicle_id) references Vehicle(vehicle_id),
+    FOREIGN KEY (finance_id) references Financing(finance_id)
 );
-ALTER TABLE
-    "Parts_Inventory" ADD PRIMARY KEY("part_id");
-ALTER TABLE
-    "Service Contract" ADD CONSTRAINT "service contract_customer_id_foreign" FOREIGN KEY("customer_id") REFERENCES "Customer"("customer_id");
-ALTER TABLE
-    "Sales Contract" ADD CONSTRAINT "sales contract_vehicle_id_foreign" FOREIGN KEY("vehicle_id") REFERENCES "Vehicle"("vehicle_id");
-ALTER TABLE
-    "Vehicle_Inventory" ADD CONSTRAINT "vehicle_inventory_vehicle_id_foreign" FOREIGN KEY("vehicle_id") REFERENCES "Vehicle"("make");
-ALTER TABLE
-    "Vehicle_Inventory" ADD CONSTRAINT "vehicle_inventory_options_id_foreign" FOREIGN KEY("options_id") REFERENCES "Vehicle_Options"("option_id");
-ALTER TABLE
-    "Service_Performed" ADD CONSTRAINT "service_performed_service_id_foreign" FOREIGN KEY("service_id") REFERENCES "Staff"("staff_id");
-ALTER TABLE
-    "Customer" ADD CONSTRAINT "customer_customer_id_foreign" FOREIGN KEY("customer_id") REFERENCES "Address"("address_id");
-ALTER TABLE
-    "Sales Contract" ADD CONSTRAINT "sales contract_finance_id_foreign" FOREIGN KEY("finance_id") REFERENCES "Financing"("finance_id");
-ALTER TABLE
-    "Service_Performed" ADD CONSTRAINT "service_performed_service_performed_id_foreign" FOREIGN KEY("service_performed_id") REFERENCES "Services"("service_id");
-ALTER TABLE
-    "Service Contract" ADD CONSTRAINT "service contract_vehicle_id_foreign" FOREIGN KEY("vehicle_id") REFERENCES "Vehicle"("vehicle_id");
-ALTER TABLE
-    "Sales Contract" ADD CONSTRAINT "sales contract_sale_date_foreign" FOREIGN KEY("sale_date") REFERENCES "Staff"("staff_id");
-ALTER TABLE
-    "Services" ADD CONSTRAINT "services_part_id_foreign" FOREIGN KEY("part_id") REFERENCES "Parts_Inventory"("part_id");
-ALTER TABLE
-    "Vehicle" ADD CONSTRAINT "vehicle_vehicle_id_foreign" FOREIGN KEY("vehicle_id") REFERENCES "Customer"("customer_id");
-ALTER TABLE
-    "Service Contract" ADD CONSTRAINT "service contract_service_performed_id_foreign" FOREIGN KEY("service_performed_id") REFERENCES "Service_Performed"("service_performed_id");
-ALTER TABLE
-    "Sales Contract" ADD CONSTRAINT "sales contract_customer_id_foreign" FOREIGN KEY("customer_id") REFERENCES "Customer"("phone");
