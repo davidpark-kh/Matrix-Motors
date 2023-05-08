@@ -15,19 +15,21 @@ CREATE TABLE Vehicle_Options(
     price DECIMAL(8, 2)
 );
 
-ALTER TABLE vehicle_options 
+ALTER TABLE vehicle_options
 RENAME COLUMN description TO OPTION;
 
 SELECT * FROM vehicle_options;
 
 CREATE TABLE Financing(
     finance_id SERIAL PRIMARY KEY,
+    total_price DECIMAL(10,2)
     finance_type VARCHAR(50),
     months INTEGER,
     down_pay DECIMAL(7, 2),
     int_rate DECIMAL(3, 2),
     promos DECIMAL(6, 2),
     monthly_pay BIGINT
+
 );
 
 CREATE TABLE Address(
@@ -45,7 +47,7 @@ CREATE TABLE Staff(
     last_name VARCHAR(50),
     hire_date DATE,
     department VARCHAR(20),
-    phone INTEGER,
+    phone VARCHAR(16),
     address_id BIGINT,
     Foreign key (address_id) references Address(address_id)
 );
@@ -77,7 +79,7 @@ DROP COLUMN options_id;
 CREATE TABLE Services(
     service_id SERIAL,
     service_type VARCHAR(30),
-    price BIGINT,
+    price DECIMAL(6, 2),
     part_id INTEGER,
     FOREIGN KEY (part_id) references Parts_Inventory(part_id)
 );
@@ -90,7 +92,7 @@ CREATE TABLE Customer(
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     company VARCHAR(50),
-    phone INTEGER,
+    phone VARCHAR(16),
     email VARCHAR(50),
     first_contacted DATE,
     address_id INTEGER,
@@ -108,8 +110,6 @@ CREATE TABLE Service_Performed(
 );
 
 -- Possible use for functions
-ALTER TABLE service_contract 
-ADD COLUMN part_units INTEGER;
 
 CREATE TABLE Service_Contract(
     servecon_id SERIAL PRIMARY KEY,
@@ -120,6 +120,8 @@ CREATE TABLE Service_Contract(
     FOREIGN key (vehicle_id) references Vehicle(vehicle_id),
     FOREIGN KEY (service_performed_id) references Service_Performed(service_performed_id)
 );
+ALTER TABLE service_contract
+ADD COLUMN part_units INTEGER;
 
 -- Maybe we can create a function that calculates the total price and returns a receipt of some sort like "Total financed sis x Your total monthly payment is y"
 CREATE TABLE Sales_Contract(
