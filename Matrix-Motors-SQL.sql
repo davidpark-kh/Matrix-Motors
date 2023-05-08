@@ -8,11 +8,17 @@ CREATE TABLE Parts_Inventory(
     ppu VARCHAR(20)
 );
 
+
 CREATE TABLE Vehicle_Options(
     option_id SERIAL PRIMARY KEY,
     description VARCHAR(50),
     price DECIMAL(8, 2)
 );
+
+ALTER TABLE vehicle_options 
+RENAME COLUMN description TO OPTION;
+
+SELECT * FROM vehicle_options;
 
 CREATE TABLE Financing(
     finance_id SERIAL PRIMARY KEY,
@@ -65,6 +71,9 @@ CREATE TABLE Vehicle_Inventory(
     FOREIGN key (vehicle_id) references Vehicle(vehicle_id)
 );
 
+ALTER TABLE vehicle_inventory
+DROP COLUMN options_id;
+
 CREATE TABLE Services(
     service_id SERIAL,
     service_type VARCHAR(30),
@@ -97,6 +106,10 @@ CREATE TABLE Service_Performed(
     FOREIGN key (service_id) references Services(service_id),
     FOREIGN key (staff_id) references Staff(staff_id)
 );
+
+-- Possible use for functions
+ALTER TABLE service_contract 
+ADD COLUMN part_units INTEGER;
 
 CREATE TABLE Service_Contract(
     servecon_id SERIAL PRIMARY KEY,
